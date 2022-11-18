@@ -10,6 +10,32 @@
 
 (def dir "/opt/questdb")
 
+(defn questdb!
+  "Runs QuestDB main script"
+  [& args]
+  (c/su
+   (c/cd dir
+         (apply c/exec "bin/questdb.sh" args))))
+
+(defn start!
+  "Starts QuestDB."
+  []
+  (questdb! :start))
+
+(defn stop!
+  "Stops QuestDB."
+  []
+  (try+
+   (questdb! :stop)
+   (catch [:exit 55] e
+     ; already not running
+     nil)))
+
+(defn status
+  "Returns the status of the QuestDB."
+  []
+  (questdb! :status))
+
 (defn db
   "Quest DB version."
   [version]
