@@ -45,10 +45,13 @@
                  (c/su
                   (let [url (str "https://github.com/questdb/questdb/releases/download/" version
                                  "/questdb-" version "-rt-linux-amd64.tar.gz")]
-                    (cu/install-archive! url dir))))
+                    (cu/install-archive! url dir)))
+                 (start!)
+                 (info node "QuestDB status is " (status)))
 
          (teardown! [_ test node]
-                    (info node "tearing down Quest DB"))))
+                    (info node "tearing down Quest DB")
+                    (stop!))))
 
 (defn questdb-test
   "Given an options map from the command line runner (e.g. :nodes, :ssh,
