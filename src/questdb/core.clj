@@ -6,7 +6,8 @@
              [db :as db]
              [tests :as tests]]
             [jepsen.control.util :as cu]
-            [jepsen.os.debian :as debian]))
+            [jepsen.os.debian :as debian]
+            [slingshot.slingshot :refer [try+ throw+]]))
 
 (def dir "/opt/questdb")
 
