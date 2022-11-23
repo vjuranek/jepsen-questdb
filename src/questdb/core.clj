@@ -8,6 +8,7 @@
              [tests :as tests]]
             [jepsen.control.util :as cu]
             [jepsen.os.debian :as debian]
+            [questdb.client :as client]
             [slingshot.slingshot :refer [try+ throw+]]))
 
 (def dir "/opt/questdb")
@@ -65,8 +66,13 @@
          {:name            "questdb"
           :os              debian/os
           :db              (db "6.5.5")
+          :client          (questdb.client.Client. nil)
           :pure-generators true
-          :nodes           ["n1"]}))
+          :nodes           ["n1"]
+          :db-port         8812
+          :db-name         "qdb"
+          :db-user         "admin"
+          :db-password     "quest"}))
 
 (defn -main
   "Handles command line arguments. Can either run a test, or a web server for
