@@ -6,4 +6,5 @@
   :main questdb.core
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [jepsen "0.2.1-SNAPSHOT"]]
-  :repl-options {:init-ns questdb.core})
+  :repl-options {:init-ns questdb.core}
+  :aot [questdb.core])
