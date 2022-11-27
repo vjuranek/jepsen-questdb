@@ -36,5 +36,5 @@
 
   (teardown! [this test])
 
-  (close! [_ test]
-    (close-conn! conn)))
+  (close! [this test]
+    (close-conn! (:conn this))))
