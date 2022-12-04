@@ -51,6 +51,7 @@
                             "/questdb-" version "-rt-linux-amd64.tar.gz")]
                (cu/install-archive! url dir)))
             (start!)
+            (client/wait-for-connection test node)
             (info node "QuestDB status is " (status)))
 
     (teardown! [_ test node]

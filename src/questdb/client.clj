@@ -1,5 +1,6 @@
 (ns questdb.client
-  (:require [next.jdbc :as jdbc]
+  (:require [clojure.tools.logging :refer :all]
+            [next.jdbc :as jdbc]
             [jepsen [client :as client]])
   (:import (java.sql Connection)))
 
@@ -21,6 +22,21 @@
   "Closes a connection to the DB."
   [^java.sql.Connection conn]
   (.close conn))
+
+(defn retry-connection
+  [test node retrires]
+  (if (> retrires 0)
+    (try
+      (info "Waiting for DB to become available")
+      (let [conn (open-conn! test node)]
+        (jdbc/execute-one! conn ["show tables"]))
+      (catch org.postgresql.util.PSQLException e
+        (Thread/sleep 1000)
+        (retry-connection test node (dec retrires))))))
+
+(defn wait-for-connection
+  [test node]
+  (retry-connection test node 10))
 
 (defrecord Client [conn]
   client/Client
