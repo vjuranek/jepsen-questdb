@@ -1,5 +1,6 @@
 (ns questdb.core
-  (:require [clojure.tools.logging :refer :all]
+  (:require [clojure.java.io :as io]
+            [clojure.tools.logging :refer :all]
             [clojure.string :as str]
             [jepsen
              [cli :as cli]
@@ -13,6 +14,21 @@
 
 (def quest-dir "/opt/questdb")
 (def data-dir "/opt/data")
+(def conf-dir (str data-dir "/conf"))
+(def log-config (str conf-dir "/log.conf"))
+(def log-dir (str data-dir "/log"))
+(def log-file (str log-dir "/questdb.log"))
+
+(defn configure!
+  []
+  (info "Configuring QuestDB" log-config)
+  (c/su
+   (c/exec :mkdir :-p conf-dir)
+   (c/exec :echo
+              (-> "log.conf"
+                  io/resource
+                  slurp)
+           :> log-config)))
 
 (defn questdb!
   "Runs QuestDB main script"
@@ -24,6 +40,7 @@
 (defn start!
   "Starts QuestDB."
   []
+  (configure!)
   (questdb! :start :-d data-dir))
 
 (defn stop!
@@ -58,7 +75,11 @@
 
    (teardown! [_ test node]
               (info node "tearing down Quest DB")
-              (stop!))))
+              (stop!))
+
+   db/LogFiles
+   (log-files [_ test node]
+              [log-file])))
 
 (defn questdb-test
   "Given an options map from the command line runner (e.g. :nodes, :ssh,
