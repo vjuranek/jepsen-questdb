@@ -11,19 +11,20 @@
             [questdb.client :as client]
             [slingshot.slingshot :refer [try+ throw+]]))
 
-(def dir "/opt/questdb")
+(def quest-dir "/opt/questdb")
+(def data-dir "/opt/data")
 
 (defn questdb!
   "Runs QuestDB main script"
   [& args]
   (c/su
-   (c/cd dir
+   (c/cd quest-dir
          (apply c/exec "bin/questdb.sh" args))))
 
 (defn start!
   "Starts QuestDB."
   []
-  (questdb! :start))
+  (questdb! :start :-d data-dir))
 
 (defn stop!
   "Stops QuestDB."
@@ -32,7 +33,8 @@
    (questdb! :stop)
    (catch [:exit 55] e
      ; already not running
-     nil)))
+     nil))
+  (c/su (c/exec :rm :-rf data-dir)))
 
 (defn status
   "Returns the status of the QuestDB."
@@ -49,7 +51,7 @@
            (c/su
             (let [url (str "https://github.com/questdb/questdb/releases/download/" version
                            "/questdb-" version "-rt-linux-amd64.tar.gz")]
-              (cu/install-archive! url dir)))
+              (cu/install-archive! url quest-dir)))
            (start!)
            (client/wait-for-connection test node)
            (info node "QuestDB status is " (status)))
